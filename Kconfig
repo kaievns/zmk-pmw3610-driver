@@ -35,6 +35,10 @@ config PMW3610_INIT_POWER_UP_EXTRA_DELAY_MS
     Default minimum init power up delay is 10ms.
     Use this config to postpone init power up sequence if needs longer bootup time.
 
+config PMW3610_ROTATE_DEG
+  int "Rotate the input clockwise"
+  default 0
+
 config PMW3610_REPORT_INTERVAL_MIN
 	int "PMW3610's default minimum report rate"
 	default 0
