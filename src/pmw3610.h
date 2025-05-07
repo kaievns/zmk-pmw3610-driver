@@ -4,7 +4,8 @@
 #include "pixart.h"
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 /* Timings (in us) used in SPI communication. */
@@ -94,31 +95,32 @@ extern "C" {
 #define PMW3610_SVALUE_TO_CPI(svalue) ((uint32_t)(svalue).val1)
 #define PMW3610_SVALUE_TO_TIME(svalue) ((uint32_t)(svalue).val1)
 
-/** @brief Sensor specific attributes of PMW3610. */
-enum pmw3610_attribute {
+	/** @brief Sensor specific attributes of PMW3610. */
+	enum pmw3610_attribute
+	{
 
-	/** Sensor CPI for both X and Y axes. */
-	PMW3610_ATTR_CPI,
+		/** Sensor CPI for both X and Y axes. */
+		PMW3610_ATTR_CPI,
 
-	/** Entering time from Run mode to REST1 mode [ms]. */
-	PMW3610_ATTR_RUN_DOWNSHIFT_TIME,
+		/** Entering time from Run mode to REST1 mode [ms]. */
+		PMW3610_ATTR_RUN_DOWNSHIFT_TIME,
 
-	/** Entering time from REST1 mode to REST2 mode [ms]. */
-	PMW3610_ATTR_REST1_DOWNSHIFT_TIME,
+		/** Entering time from REST1 mode to REST2 mode [ms]. */
+		PMW3610_ATTR_REST1_DOWNSHIFT_TIME,
 
-	/** Entering time from REST2 mode to REST3 mode [ms]. */
-	PMW3610_ATTR_REST2_DOWNSHIFT_TIME,
+		/** Entering time from REST2 mode to REST3 mode [ms]. */
+		PMW3610_ATTR_REST2_DOWNSHIFT_TIME,
 
-	/** Sampling frequency time during REST1 mode [ms]. */
-	PMW3610_ATTR_REST1_SAMPLE_TIME,
+		/** Sampling frequency time during REST1 mode [ms]. */
+		PMW3610_ATTR_REST1_SAMPLE_TIME,
 
-	/** Sampling frequency time during REST2 mode [ms]. */
-	PMW3610_ATTR_REST2_SAMPLE_TIME,
+		/** Sampling frequency time during REST2 mode [ms]. */
+		PMW3610_ATTR_REST2_SAMPLE_TIME,
 
-	/** Sampling frequency time during REST3 mode [ms]. */
-	PMW3610_ATTR_REST3_SAMPLE_TIME,
+		/** Sampling frequency time during REST3 mode [ms]. */
+		PMW3610_ATTR_REST3_SAMPLE_TIME,
 
-};
+	};
 
 #ifdef __cplusplus
 }

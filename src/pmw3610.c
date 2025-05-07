@@ -575,6 +575,19 @@ static int pmw3610_init(const struct device *dev) {
     return err;
 }
 
+#ifdef CONFIG_PM_DEVICE
+static int pmw3610_pm_ctrl(const struct device *dev, enum pm_device_action action) {
+    switch (action) {
+    case PM_DEVICE_ACTION_RESUME:
+        return pmw3610_init(dev); // Or re-init if needed
+    case PM_DEVICE_ACTION_SUSPEND:
+        return 0;
+    default:
+        return -ENOTSUP;
+    }
+}
+#endif
+
 static int pmw3610_attr_set(const struct device *dev, enum sensor_channel chan,
                             enum sensor_attribute attr, const struct sensor_value *val) {
     struct pixart_data *data = dev->data;
@@ -660,7 +673,7 @@ static int pmw3610_pm_action(const struct device *dev, enum pm_device_action act
         .force_awake = DT_PROP(DT_DRV_INST(n), force_awake),                                       \
     };                                                                                             \
     PM_DEVICE_DT_INST_DEFINE(n, pmw3610_pm_action);                                                \
-    DEVICE_DT_INST_DEFINE(n, pmw3610_init, NULL, &data##n, &config##n, POST_KERNEL,                \
+    DEVICE_DT_INST_DEFINE(n, pmw3610_init, pmw3610_pm_ctrl, &data##n, &config##n, POST_KERNEL,                \
                           CONFIG_INPUT_PMW3610_INIT_PRIORITY, &pmw3610_driver_api);
 
 DT_INST_FOREACH_STATUS_OKAY(PMW3610_DEFINE)
