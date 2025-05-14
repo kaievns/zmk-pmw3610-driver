@@ -385,6 +385,55 @@ static void pmw3610_async_init(struct k_work *work) {
 #define COS cosf((CONFIG_PMW3610_ROTATE_DEG * -3.1415926536f) / 180.0f)
 #endif
 
+// Smoothing factor: lower = smoother, higher = more responsive (0–256 range)
+#define SMOOTHING_ALPHA 200  // 64/256 = 0.25 responsiveness
+
+static int16_t smooth_motion(int16_t previous, int16_t current) {
+    return previous + ((current - previous) * SMOOTHING_ALPHA) / 256;
+}
+
+static const uint16_t pow13_lookup[50] = {
+     0,  1,  2,  4,  5,  7,  9, 11, 13, 15,
+    17, 19, 22, 24, 27, 29, 32, 34, 37, 39,
+    42, 45, 47, 50, 53, 56, 59, 62, 65, 68,
+    71, 74, 77, 80, 84, 87, 90, 94, 97,101,
+   104,108,111,115,118,122,126,129,133,137
+};
+
+static const uint16_t pow15_lookup[50] = {
+     0,  1,  2,  5,  7, 11, 14, 18, 22, 27,
+    32, 37, 43, 49, 55, 62, 69, 76, 84, 92,
+   100,109,118,127,137,147,157,168,179,190,
+   202,214,226,239,252,265,279,293,307,322,
+   337,352,368,384,400,417,434,451,469,487
+};
+
+static const uint16_t pow20_lookup[50] = {
+     0,   1,   4,   9,  16,  25,  36,  49,  64,  81,
+   100, 121, 144, 169, 196, 225, 256, 289, 324, 361,
+   400, 441, 484, 529, 576, 625, 676, 729, 784, 841,
+   900, 961,1024,1089,1156,1225,1296,1369,1444,1521,
+  1600,1681,1764,1849,1936,2025,2116,2209,2304,2401
+};
+
+#define ACCEL_BASE     1.0f  // No scaling at low speed
+#define ACCEL_SCALE    0.06f // How aggressively to scale
+
+#define ACCEL_NORM_13 1.75f  // feel normalisation divider for 1.3 exp
+#define ACCEL_NORM_15 1.82f  
+#define ACCEL_NORM_20 2.59f
+
+static int16_t apply_acceleration(int16_t dt) {
+    uint8_t delta = abs(dt);
+    float powish = (delta < 50) ? pow15_lookup[delta] : delta * 12; // crude fallback
+    float result = (dt * (ACCEL_BASE + (powish * ACCEL_SCALE) / 256)) / ACCEL_BASE;
+
+    int16_t normalised = result / ACCEL_NORM_15;
+
+    return normalised;
+}
+
+
 static int pmw3610_report_data(const struct device *dev) {
     struct pixart_data *data = dev->data;
     const struct pixart_config *config = dev->config;
@@ -470,6 +519,15 @@ static int pmw3610_report_data(const struct device *dev) {
         return 0;
     }
 #endif
+
+    //static int16_t dx_smooth = 0;
+    //static int16_t dy_smooth = 0;
+
+    //dx_smooth = smooth_motion(dx_smooth, dx);
+    //dy_smooth = smooth_motion(dy_smooth, dy);
+        
+    dx = apply_acceleration(dx);
+    dy = apply_acceleration(dy);
 
     // fetch report value
     int16_t rx = (int16_t)CLAMP(dx, INT16_MIN, INT16_MAX);
